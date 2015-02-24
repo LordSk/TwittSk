@@ -1,6 +1,10 @@
 #include <QDebug>
+#include <QUrl>
+#include <QMessageAuthenticationCode>
 #include <chrono>
+#include <map>
 #include "netrequestfactory.h"
+#include "secret_keys.h"
 
 int64_t NetRequestFactory::getTimestamp() const
 {
@@ -23,14 +27,83 @@ QString NetRequestFactory::genUniqueToken()
     return array;
 }
 
-NetRequestFactory::NetRequestFactory(const QString &consumerKey, const QString &token)
-    : _consumerKey(consumerKey),
-      _token(token)
+QString NetRequestFactory::genAuthHeader(const QUrl &url)
+{
+    QString uniToken = genUniqueToken();
+    QString timestamp = QString::number(getTimestamp());
+    QString signature = genSignature(url, uniToken, timestamp);
+
+    QString str = "OAuth ";
+    str += "oauth_consumer_key=\"" + QUrl::toPercentEncoding(_consumerKey) + "\", ";
+    str += "oauth_nonce=\"" + QUrl::toPercentEncoding(uniToken) + "\", ";
+    str += "oauth_signature=\"" + QUrl::toPercentEncoding(signature) + "\", ";
+    str += "oauth_signature_method=\"" + QUrl::toPercentEncoding((SIGNATURE_METHOD)) + "\", ";
+    str += "oauth_timestamp=\"" + QUrl::toPercentEncoding(timestamp) + "\", ";
+    str += "oauth_token=\"" + QUrl::toPercentEncoding(_token) + "\", ";
+    str += "oauth_version=\"" + QUrl::toPercentEncoding(QString(OAUTH_VERSION)) + "\"";
+    return str;
+}
+
+QString NetRequestFactory::genSignature(const QUrl &url, const QString& nonce, const QString& timestamp)
+{
+    // Collect parameters
+    std::map<QString, QString> params;
+    // add url parameters (?param=something&....)
+    params["oauth_consumer_key"] = _consumerKey;
+    params["oauth_nonce"] = nonce;
+    params["oauth_signature_method"] = QString(SIGNATURE_METHOD);
+    params["oauth_timestamp"] = timestamp;
+    params["oauth_token"] = _token;
+    params["oauth_version"] = QString(OAUTH_VERSION);
+
+    QString paramStr("");
+
+    for(const auto p : params) {
+        paramStr += QUrl::toPercentEncoding(p.first);
+        paramStr += "=";
+        paramStr += QUrl::toPercentEncoding(p.second);
+        paramStr += "&";
+    }
+
+    paramStr = paramStr.left(paramStr.length()-1); // remove last "&" -> not very clean
+    //qDebug() << paramStr;
+
+    // Create the signature base string
+    QString baseStr = "GET&";
+    baseStr += QUrl::toPercentEncoding(url.toString());
+    baseStr += "&";
+    baseStr += QUrl::toPercentEncoding(paramStr);
+    //qDebug() << baseStr;
+
+    // Signing key
+    QString signingKey = QUrl::toPercentEncoding(_consumerKeySecret);
+    signingKey += "&";
+    signingKey += QUrl::toPercentEncoding(_tokenSecret);
+    //qDebug() << signingKey;
+
+    QString signature = QMessageAuthenticationCode::hash(baseStr.toLatin1(), signingKey.toLatin1(), QCryptographicHash::Sha1).toBase64();
+    //qDebug() << signature;
+
+    return signature;
+}
+
+NetRequestFactory::NetRequestFactory()
+    : _consumerKey(CONSUMER_KEY),
+      _token(OAUTH_TOKEN),
+      _consumerKeySecret(CONSUMER_KEY_SECRET),
+      _tokenSecret(OAUTH_TOKEN_SECRET)
 {
     _rand.gen.seed(getTimestamp());
+}
 
-    for(int i = 0; i < 24; i++)
-        qDebug() << genUniqueToken();
+QNetworkRequest NetRequestFactory::homeTimeline()
+{
+    QUrl url = QUrl("https://api.twitter.com/1.1/statuses/home_timeline.json");
+    QNetworkRequest request;
+    request.setUrl(url);
+    request.setHeader(QNetworkRequest::UserAgentHeader, "TwittSk 0.1");
+    request.setRawHeader("Authorization", genAuthHeader(url).toLatin1());
+    return request;
 }
 
 
