@@ -14,19 +14,31 @@
    <string>TwittSk</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QTextEdit" name="textEdit">
+   <widget class="QWebView" name="webView">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>30</y>
-      <width>331</width>
-      <height>231</height>
+      <x>0</x>
+      <y>0</y>
+      <width>400</width>
+      <height>300</height>
      </rect>
+    </property>
+    <property name="url">
+     <url>
+      <string>about:blank</string>
+     </url>
     </property>
    </widget>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header>QtWebKitWidgets/QWebView</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -17,6 +17,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void testHTML();
+
 private:
     std::unique_ptr<Ui::MainWindow> _ui;
     std::unique_ptr<QNetworkAccessManager> _netMngr;
