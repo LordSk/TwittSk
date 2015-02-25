@@ -1,11 +1,13 @@
 #include <QUrl>
 #include <QFile>
+#include <QDir>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonValue>
+#include <QTextStream>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -39,18 +41,35 @@ void MainWindow::testHTML()
     QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
     file.close();
 
-    QJsonObject obj = jsonDoc.array().at(0).toObject();
-    qDebug() << obj["text"].toString();
-
     QString html = "";
+    QTextStream strim(&html, QIODevice::WriteOnly);
+
+    strim << "<body>";
+
     for(const auto& v : jsonDoc.array()) {
         QJsonObject obj = v.toObject();
-        html += "<div class=\"posterAvatar\"><img src=\"" + obj["user"].toObject()["profile_image_url"].toString()
-                + "\"></div>";
-        html += "<div class=\"text\">" + obj["text"].toString() + "</div>";
+        QJsonObject user = obj["user"].toObject();
+
+        strim
+        << "<div class=\"tweetBody\">"
+
+        << "<div class=\"leftPanel\">"
+        << "<div class=\"avatar\"><img src=\"" << user["profile_image_url"].toString() << "\"></div>"
+        << "</div>"
+
+        << "<div class=\"rightPanel\">"
+        << "<div class=\"posterName\">" << user["name"].toString() << "</div>"
+        << "<div class=\"text\">" << obj["text"].toString() << "</div>"
+        << "</div>"
+
+        << "</div>";
     }
 
+    strim << "</body>";
+
+
     _ui->webView->setHtml(html);
+    _ui->webView->settings()->setUserStyleSheetUrl(QUrl::fromLocalFile(QDir::currentPath() + "/twittsk.css"));
 }
 
 void MainWindow::replyFinished(QNetworkReply *reply)

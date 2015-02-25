@@ -1,0 +1,28 @@
+body {
+	font-family: Arial;
+	margin: 0;
+	padding: 0;
+}
+
+.tweetBody {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #C7C7C7;
+}
+
+.leftPanel {
+	float: left;
+}
+
+.rightPanel {
+	margin-left: 52px;
+	min-height: 52px;
+}
+
+.posterName {
+	font-weight: bold;
+}
+
+.text {
+
+}
