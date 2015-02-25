@@ -49,6 +49,7 @@ void MainWindow::testHTML()
     for(const auto& v : jsonDoc.array()) {
         QJsonObject obj = v.toObject();
         QJsonObject user = obj["user"].toObject();
+        QJsonObject entities = obj["entities"].toObject();
 
         strim
         << "<div class=\"tweetBody\">"
@@ -59,10 +60,16 @@ void MainWindow::testHTML()
 
         << "<div class=\"rightPanel\">"
         << "<div class=\"posterName\">" << user["name"].toString() << "</div>"
-        << "<div class=\"text\">" << obj["text"].toString() << "</div>"
-        << "</div>"
+        << "<div class=\"text\">" << obj["text"].toString() << "</div>";
 
-        << "</div>";
+        if(!entities["media"].isUndefined()) {
+            for(const auto& m : entities["media"].toArray()) {
+                strim << "<div class=\"mediaPreview\"><img src=\"" << m.toObject()["media_url_https"].toString() << "\"></div>";
+            }
+        }
+
+        strim << "</div>" // rightPanel
+        << "</div>"; // tweetBody
     }
 
     strim << "</body>";

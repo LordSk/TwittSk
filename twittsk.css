@@ -26,3 +26,13 @@ body {
 .text {
 
 }
+
+.mediaPreview {
+	position: relative;
+	max-height: 253px;
+	overflow: hidden;
+}
+
+.mediaPreview img {
+	max-width: 400px;
+}
