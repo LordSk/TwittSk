@@ -4,10 +4,11 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QJsonDocument>
-#include <QJsonObject>
 #include <QJsonArray>
-#include <QJsonValue>
+#include <QJsonObject>
 #include <QTextStream>
+#include <QIcon>
+#include <QCloseEvent>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -19,6 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
     _ui(new Ui::MainWindow)
 {
     _ui->setupUi(this);
+    setMinimumSize(size());
+    setWindowIcon(QIcon(QDir::currentPath() + "/icon_64.png"));
+
     _netMngr = std::unique_ptr<QNetworkAccessManager>(new QNetworkAccessManager());
 
     connect(_netMngr.get(), SIGNAL(finished(QNetworkReply*)),
@@ -63,6 +67,12 @@ void MainWindow::testHTML()
 
 
     _ui->webView->setHtml(html);
+}
+
+void MainWindow::closeEvent(QCloseEvent *ce)
+{
+    /*ce->ignore();
+    showMinimized();*/
 }
 
 void MainWindow::replyFinished(QNetworkReply *reply)
