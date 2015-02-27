@@ -12,6 +12,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "netrequestfactory.h"
+#include "tweet.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -42,41 +43,26 @@ void MainWindow::testHTML()
     file.close();
 
     QString html = "";
-    QTextStream strim(&html, QIODevice::WriteOnly);
+    QTextStream out(&html, QIODevice::WriteOnly);
 
-    strim << "<body>";
+    out
+    << "<!DOCTYPE html>"
+    << "<html>"
+    << "<head>"
+    << "<link rel=\"stylesheet\" type=\"text/css\" href=\"" << "file:///" + QDir::currentPath() + "/twittsk.css" << "\">"
+    << "</head>"
+    << "<body>";
 
     for(const auto& v : jsonDoc.array()) {
         QJsonObject obj = v.toObject();
-        QJsonObject user = obj["user"].toObject();
-        QJsonObject entities = obj["entities"].toObject();
-
-        strim
-        << "<div class=\"tweetBody\">"
-
-        << "<div class=\"leftPanel\">"
-        << "<div class=\"avatar\"><img src=\"" << user["profile_image_url"].toString() << "\"></div>"
-        << "</div>"
-
-        << "<div class=\"rightPanel\">"
-        << "<div class=\"posterName\">" << user["name"].toString() << "</div>"
-        << "<div class=\"text\">" << obj["text"].toString() << "</div>";
-
-        if(!entities["media"].isUndefined()) {
-            for(const auto& m : entities["media"].toArray()) {
-                strim << "<div class=\"mediaPreview\"><img src=\"" << m.toObject()["media_url_https"].toString() << "\"></div>";
-            }
-        }
-
-        strim << "</div>" // rightPanel
-        << "</div>"; // tweetBody
+        Tweet tweet(obj);
+        out << tweet.toHTML();
     }
 
-    strim << "</body>";
+    out << "</body></html>";
 
 
     _ui->webView->setHtml(html);
-    _ui->webView->settings()->setUserStyleSheetUrl(QUrl::fromLocalFile(QDir::currentPath() + "/twittsk.css"));
 }
 
 void MainWindow::replyFinished(QNetworkReply *reply)

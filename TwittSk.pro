@@ -14,10 +14,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
 	mainwindow.cpp \
-    netrequestfactory.cpp
+    netrequestfactory.cpp \
+    tweet.cpp
 
 HEADERS  += mainwindow.h \
-    netrequestfactory.h
+    netrequestfactory.h \
+    tweet.h
 
 FORMS    += mainwindow.ui
 
