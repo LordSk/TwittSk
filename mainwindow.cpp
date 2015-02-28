@@ -35,8 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     _taskbarBut->setWindow(windowHandle());
     _taskbarBut->setOverlayIcon(winIcon);*/
 
-    testHTML();
-    showUnreadIcon(6);
+    connect(&_homeTl, SIGNAL(updateDone(int)), this, SLOT(homeTlUpdated(int)));
     _homeTl.update();
 }
 
@@ -45,7 +44,7 @@ MainWindow::~MainWindow()
 
 }
 
-void MainWindow::testHTML()
+/*void MainWindow::testHTML()
 {
     QFile file("hometl.json");
     file.open(QIODevice::ReadOnly);
@@ -73,7 +72,7 @@ void MainWindow::testHTML()
 
 
     _ui->webView->setHtml(html);
-}
+}*/
 
 void MainWindow::showUnreadIcon(int amount)
 {
@@ -123,4 +122,27 @@ void MainWindow::replyFinished(QNetworkReply *reply)
 
     reply->disconnect();
     reply->deleteLater();
+}
+
+void MainWindow::homeTlUpdated(int newTweetsCount)
+{
+    showUnreadIcon(newTweetsCount);
+
+    QString html = "";
+    QTextStream out(&html, QIODevice::WriteOnly);
+
+    out
+    << "<!DOCTYPE html>"
+    << "<html>"
+    << "<head>"
+    << "<link rel=\"stylesheet\" type=\"text/css\" href=\"" << "file:///" + QDir::currentPath() + "/twittsk.css" << "\">"
+    << "</head>"
+    << "<body>"
+
+    << _homeTl.getHTML();
+
+    out << "</body></html>";
+
+
+    _ui->webView->setHtml(html);
 }

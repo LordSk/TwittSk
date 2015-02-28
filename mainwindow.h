@@ -19,7 +19,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void testHTML();
     void showUnreadIcon(int amount);
 
 private:
@@ -33,6 +32,7 @@ private:
 
 private slots:
     void replyFinished(QNetworkReply* reply);
+    void homeTlUpdated(int newTweetsCount);
 };
 
 #endif // MAINWINDOW_H

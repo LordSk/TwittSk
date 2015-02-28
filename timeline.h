@@ -13,14 +13,17 @@ class Timeline : public QObject
 
 public:
     explicit Timeline(QObject* parent = nullptr);
-    virtual ~Timeline();
 
     virtual void update() = 0;
+    QString getHTML() const;
 
 protected:
     QNetworkAccessManager _netAM;
     NetRequestFactory _netReqFact;
-    std::map<QString, Tweet> _tweets;
+    std::map<QString, Tweet, std::greater<QString>> _tweets;
+
+signals:
+    void updateDone(int newTweetsCount);
 
 private slots:
     virtual void replyFinished(QNetworkReply* reply);
