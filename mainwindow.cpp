@@ -9,6 +9,11 @@
 #include <QTextStream>
 #include <QIcon>
 #include <QCloseEvent>
+#include <QImage>
+#include <QPainter>
+#include <QPixmap>
+#include <QStaticText>
+#include <QFont>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -32,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     _netMngr->get(nrf.homeTimeline());*/
 
     testHTML();
+    testIcon();
 }
 
 MainWindow::~MainWindow()
@@ -69,11 +75,36 @@ void MainWindow::testHTML()
     _ui->webView->setHtml(html);
 }
 
-void MainWindow::closeEvent(QCloseEvent *ce)
+void MainWindow::testIcon()
 {
-    /*ce->ignore();
-    showMinimized();*/
+    QImage newIcon(QDir::currentPath() + "/icon_red_64.png");
+    QPainter painter;
+
+    painter.begin(&newIcon);
+
+    QFont font;
+    font.setPixelSize(20);
+    font.setBold(true);
+
+    QStaticText text("99");
+    text.prepare();
+
+    painter.setFont(font);
+    QPen penHText(QColor("#fff"));
+    painter.setPen(penHText);
+
+    painter.drawStaticText(QPointF(32, 32), text);
+
+    painter.end();
+
+    setWindowIcon(QIcon(QPixmap::fromImage(newIcon)));
 }
+
+/*void MainWindow::closeEvent(QCloseEvent *ce)
+{
+    ce->ignore();
+    showMinimized();
+}*/
 
 void MainWindow::replyFinished(QNetworkReply *reply)
 {
