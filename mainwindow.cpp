@@ -14,6 +14,7 @@
 #include <QPixmap>
 #include <QStaticText>
 #include <QFont>
+#include <QWinTaskbarButton>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -22,11 +23,17 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
+    _baseIcon(QDir::currentPath() + "/icon_64.png"),
+    _unreadIconImg(QDir::currentPath() + "/icon_red_64.png"),
     _ui(new Ui::MainWindow)
 {
     _ui->setupUi(this);
     setMinimumSize(size());
-    setWindowIcon(QIcon(QDir::currentPath() + "/icon_64.png"));
+    setWindowIcon(_baseIcon);
+
+    /*_taskbarBut = std::unique_ptr<QWinTaskbarButton>(new QWinTaskbarButton(this));
+    _taskbarBut->setWindow(windowHandle());
+    _taskbarBut->setOverlayIcon(winIcon);*/
 
     _netMngr = std::unique_ptr<QNetworkAccessManager>(new QNetworkAccessManager());
 
@@ -37,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     _netMngr->get(nrf.homeTimeline());*/
 
     testHTML();
-    testIcon();
+    showUnreadIcon(6);
 }
 
 MainWindow::~MainWindow()
@@ -75,25 +82,29 @@ void MainWindow::testHTML()
     _ui->webView->setHtml(html);
 }
 
-void MainWindow::testIcon()
+void MainWindow::showUnreadIcon(int amount)
 {
-    QImage newIcon(QDir::currentPath() + "/icon_red_64.png");
+    QImage newIcon(_unreadIconImg);
     QPainter painter;
 
     painter.begin(&newIcon);
 
     QFont font;
-    font.setPixelSize(20);
+    font.setPixelSize(19);
     font.setBold(true);
 
-    QStaticText text("99");
+    QStaticText text(QString::number(amount));
     text.prepare();
 
     painter.setFont(font);
     QPen penHText(QColor("#fff"));
     painter.setPen(penHText);
 
-    painter.drawStaticText(QPointF(32, 32), text);
+    int delta = 0;
+    if(amount < 10)
+        delta = 7;
+
+    painter.drawStaticText(QPointF(36+delta, 37), text);
 
     painter.end();
 
