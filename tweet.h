@@ -25,6 +25,7 @@ public:
     explicit Tweet(const QJsonObject& obj);
 
     QString toHTML() const;
+    QString id() const;
 };
 
 #endif // TWEET_H

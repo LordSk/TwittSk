@@ -27,11 +27,11 @@ QString NetRequestFactory::genUniqueToken()
     return array;
 }
 
-QString NetRequestFactory::genAuthHeader(const QUrl &url)
+QString NetRequestFactory::genAuthHeader(const QUrl &baseUrl, const std::map<QString, QString>& urlParams)
 {
     QString uniToken = genUniqueToken();
     QString timestamp = QString::number(getTimestamp());
-    QString signature = genSignature(url, uniToken, timestamp);
+    QString signature = genSignature(baseUrl, uniToken, timestamp, urlParams);
 
     QString str = "OAuth ";
     str += "oauth_consumer_key=\"" + QUrl::toPercentEncoding(_consumerKey) + "\", ";
@@ -44,11 +44,13 @@ QString NetRequestFactory::genAuthHeader(const QUrl &url)
     return str;
 }
 
-QString NetRequestFactory::genSignature(const QUrl &url, const QString& nonce, const QString& timestamp)
+QString NetRequestFactory::genSignature(const QUrl &baseUrl, const QString& nonce, const QString& timestamp,
+                                        const std::map<QString, QString>& urlParams)
 {
     // Collect parameters
     std::map<QString, QString> params;
     // add url parameters (?param=something&....)
+    params.insert(urlParams.begin(), urlParams.end());
     params["oauth_consumer_key"] = _consumerKey;
     params["oauth_nonce"] = nonce;
     params["oauth_signature_method"] = QString(SIGNATURE_METHOD);
@@ -70,7 +72,7 @@ QString NetRequestFactory::genSignature(const QUrl &url, const QString& nonce, c
 
     // Create the signature base string
     QString baseStr = "GET&";
-    baseStr += QUrl::toPercentEncoding(url.toString());
+    baseStr += QUrl::toPercentEncoding(baseUrl.toString());
     baseStr += "&";
     baseStr += QUrl::toPercentEncoding(paramStr);
     //qDebug() << baseStr;
@@ -96,13 +98,28 @@ NetRequestFactory::NetRequestFactory()
     _rand.gen.seed(getTimestamp());
 }
 
-QNetworkRequest NetRequestFactory::homeTimeline()
+QNetworkRequest NetRequestFactory::homeTimeline(const std::map<QString, QString>& params)
 {
-    QUrl url = QUrl("https://api.twitter.com/1.1/statuses/home_timeline.json");
+    QString baseUrlStr = "https://api.twitter.com/1.1/statuses/home_timeline.json";
+    QString urlStr = baseUrlStr;
+    if(params.size() > 0) {
+        urlStr += "?";
+
+        unsigned int i = 0;
+        for(const auto& pair: params) {
+            urlStr += pair.first + "=" + pair.second;
+            if(i < params.size()-1)
+               urlStr += "&";
+            i++;
+        }
+    }
+
+    //qDebug() << urlStr;
+
     QNetworkRequest request;
-    request.setUrl(url);
+    request.setUrl(QUrl(urlStr));
     request.setHeader(QNetworkRequest::UserAgentHeader, "TwittSk 0.1");
-    request.setRawHeader("Authorization", genAuthHeader(url).toLatin1());
+    request.setRawHeader("Authorization", genAuthHeader(QUrl(baseUrlStr), params).toLatin1());
     return request;
 }
 

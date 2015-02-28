@@ -35,16 +35,9 @@ MainWindow::MainWindow(QWidget *parent) :
     _taskbarBut->setWindow(windowHandle());
     _taskbarBut->setOverlayIcon(winIcon);*/
 
-    _netMngr = std::unique_ptr<QNetworkAccessManager>(new QNetworkAccessManager());
-
-    connect(_netMngr.get(), SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(replyFinished(QNetworkReply*)));
-
-    /*NetRequestFactory nrf;
-    _netMngr->get(nrf.homeTimeline());*/
-
     testHTML();
     showUnreadIcon(6);
+    _homeTl.update();
 }
 
 MainWindow::~MainWindow()

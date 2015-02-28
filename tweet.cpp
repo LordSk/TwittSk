@@ -49,3 +49,8 @@ QString Tweet::toHTML() const
 
     return html;
 }
+
+QString Tweet::id() const
+{
+    return _idStr;
+}

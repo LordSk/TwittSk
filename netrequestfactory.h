@@ -4,6 +4,7 @@
 #include <QString>
 #include <QNetworkRequest>
 #include <random>
+#include <map>
 
 class NetRequestFactory
 {
@@ -35,27 +36,31 @@ class NetRequestFactory
     /**
      * @brief Generate an authorization header
      * @param url base url
+     * @param urlParams url parameters (?param=val&param...)
      * @return authorization header
      */
-    QString genAuthHeader(const QUrl& url);
+    QString genAuthHeader(const QUrl& baseUrl, const std::map<QString, QString>& urlParams);
 
     /**
      * @brief Generate an OAuth signature
      * @param url base url
      * @param nonce unique token
      * @param timestamp unix timestamp
+     * @param urlParams url parameters (?param=val&param...)
      * @return OAuth signature
      */
-    QString genSignature(const QUrl& url, const QString &nonce, const QString &timestamp);
+    QString genSignature(const QUrl& baseUrl, const QString &nonce, const QString &timestamp,
+                         const std::map<QString, QString>& urlParams);
 
 public:
     NetRequestFactory();
 
     /**
      * @brief Create a home timeline request
+     * @param params url parameters (?param=val&param...)
      * @return home timeline request
      */
-    QNetworkRequest homeTimeline();
+    QNetworkRequest homeTimeline(const std::map<QString, QString>& params = std::map<QString, QString>());
 };
 
 #endif // NETREQUESTFACTORY_H

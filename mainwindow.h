@@ -5,6 +5,7 @@
 #include <QIcon>
 #include <QNetworkAccessManager>
 #include <memory>
+#include "timeline.h"
 
 namespace Ui {
 class MainWindow;
@@ -27,8 +28,8 @@ private:
     QIcon _baseIcon;
     QImage _unreadIconImg;
     std::unique_ptr<Ui::MainWindow> _ui;
-    std::unique_ptr<QNetworkAccessManager> _netMngr;
     //std::unique_ptr<class QWinTaskbarButton> _taskbarBut;
+    HomeTimeline _homeTl;
 
 private slots:
     void replyFinished(QNetworkReply* reply);
