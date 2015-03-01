@@ -82,11 +82,16 @@ void MainWindow::showUnreadIcon(int amount)
     setWindowIcon(QIcon(QPixmap::fromImage(newIcon)));
 }
 
-void MainWindow::showEvent(QShowEvent *event)
+void MainWindow::changeEvent(QEvent *event)
 {
-    event->accept();
-    _homeTimeline.setRead();
-    showUnreadIcon(0);
+    QMainWindow::changeEvent(event);
+
+    if(event->type() == QEvent::ActivationChange) {
+        if(isActiveWindow()) {
+            _homeTimeline.setRead();
+            showUnreadIcon(0);
+        }
+    }
 }
 
 /*void MainWindow::closeEvent(QCloseEvent *ce)

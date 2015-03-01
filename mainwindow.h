@@ -24,7 +24,7 @@ public:
 
 private:
     //void closeEvent(QCloseEvent* ce);
-    void showEvent(QShowEvent* event);
+    void changeEvent(QEvent* event);
 
     QIcon _baseIcon;
     QImage _unreadIconImg;
