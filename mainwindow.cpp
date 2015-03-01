@@ -1,5 +1,4 @@
 #include <QUrl>
-#include <QFile>
 #include <QDir>
 #include <QNetworkRequest>
 #include <QNetworkReply>
@@ -35,8 +34,13 @@ MainWindow::MainWindow(QWidget *parent) :
     _taskbarBut->setWindow(windowHandle());
     _taskbarBut->setOverlayIcon(winIcon);*/
 
-    connect(&_homeTl, SIGNAL(updateDone(int)), this, SLOT(homeTlUpdated(int)));
-    _homeTl.update();
+    connect(&_updateTimer, SIGNAL(timeout()), this, SLOT(updateTimelines()));
+    _updateTimer.start(60*1000);
+
+    connect(&_homeTimeline, SIGNAL(updateDone(int)), this, SLOT(homeTimelineUpdated(int)));
+
+    // update once
+    _homeTimeline.update();
 }
 
 MainWindow::~MainWindow()
@@ -44,38 +48,13 @@ MainWindow::~MainWindow()
 
 }
 
-/*void MainWindow::testHTML()
-{
-    QFile file("hometl.json");
-    file.open(QIODevice::ReadOnly);
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
-    file.close();
-
-    QString html = "";
-    QTextStream out(&html, QIODevice::WriteOnly);
-
-    out
-    << "<!DOCTYPE html>"
-    << "<html>"
-    << "<head>"
-    << "<link rel=\"stylesheet\" type=\"text/css\" href=\"" << "file:///" + QDir::currentPath() + "/twittsk.css" << "\">"
-    << "</head>"
-    << "<body>";
-
-    for(const auto& v : jsonDoc.array()) {
-        QJsonObject obj = v.toObject();
-        Tweet tweet(obj);
-        out << tweet.toHTML();
-    }
-
-    out << "</body></html>";
-
-
-    _ui->webView->setHtml(html);
-}*/
-
 void MainWindow::showUnreadIcon(int amount)
 {
+    if(amount == 0) {
+        setWindowIcon(_baseIcon);
+        return;
+    }
+
     QImage newIcon(_unreadIconImg);
     QPainter painter;
 
@@ -103,30 +82,26 @@ void MainWindow::showUnreadIcon(int amount)
     setWindowIcon(QIcon(QPixmap::fromImage(newIcon)));
 }
 
+void MainWindow::showEvent(QShowEvent *event)
+{
+    event->accept();
+    _homeTimeline.setRead();
+    showUnreadIcon(0);
+}
+
 /*void MainWindow::closeEvent(QCloseEvent *ce)
 {
     ce->ignore();
     showMinimized();
 }*/
 
-void MainWindow::replyFinished(QNetworkReply *reply)
+void MainWindow::homeTimelineUpdated(int newTweetsCount)
 {
-    qDebug() << "replyFinished()";
-    QByteArray all = reply->readAll();
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(all);
-
-    QFile file("hometl.json");
-    file.open(QIODevice::WriteOnly);
-    file.write(jsonDoc.toJson());
-    file.close();
-
-    reply->disconnect();
-    reply->deleteLater();
-}
-
-void MainWindow::homeTlUpdated(int newTweetsCount)
-{
+    qDebug() << "Home timeline updated";
     showUnreadIcon(newTweetsCount);
+
+    if(newTweetsCount == 0) // nothing new, don't update the view
+        return;
 
     QString html = "";
     QTextStream out(&html, QIODevice::WriteOnly);
@@ -139,10 +114,15 @@ void MainWindow::homeTlUpdated(int newTweetsCount)
     << "</head>"
     << "<body>"
 
-    << _homeTl.getHTML();
+    << _homeTimeline.getHTML();
 
     out << "</body></html>";
 
 
     _ui->webView->setHtml(html);
+}
+
+void MainWindow::updateTimelines()
+{
+    _homeTimeline.update();
 }

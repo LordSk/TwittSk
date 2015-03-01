@@ -16,11 +16,13 @@ public:
 
     virtual void update() = 0;
     QString getHTML() const;
+    void setRead();
 
 protected:
     QNetworkAccessManager _netAM;
     NetRequestFactory _netReqFact;
     std::map<QString, Tweet, std::greater<QString>> _tweets;
+    int _newTweetsCount;
 
 signals:
     void updateDone(int newTweetsCount);

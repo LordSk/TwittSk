@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QIcon>
 #include <QNetworkAccessManager>
+#include <QTimer>
 #include <memory>
 #include "timeline.h"
 
@@ -23,16 +24,18 @@ public:
 
 private:
     //void closeEvent(QCloseEvent* ce);
+    void showEvent(QShowEvent* event);
 
     QIcon _baseIcon;
     QImage _unreadIconImg;
     std::unique_ptr<Ui::MainWindow> _ui;
     //std::unique_ptr<class QWinTaskbarButton> _taskbarBut;
-    HomeTimeline _homeTl;
+    QTimer _updateTimer;
+    HomeTimeline _homeTimeline;
 
 private slots:
-    void replyFinished(QNetworkReply* reply);
-    void homeTlUpdated(int newTweetsCount);
+    void homeTimelineUpdated(int newTweetsCount);
+    void updateTimelines();
 };
 
 #endif // MAINWINDOW_H
