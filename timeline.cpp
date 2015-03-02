@@ -72,16 +72,16 @@ void HomeTimeline::update()
 
 void HomeTimeline::replyFinished(QNetworkReply *reply)
 {
-    //QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
     /*QFile file(QDir::currentPath() + "/hometl.json");
     file.open(QIODevice::WriteOnly);
     file.write(jsonDoc.toJson());
     file.close();*/
 
-    QFile file(QDir::currentPath() + "/hometl.json");
+    /*QFile file(QDir::currentPath() + "/hometl.json");
     file.open(QIODevice::ReadOnly);
     QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
-    file.close();
+    file.close();*/
 
     int newTweetsCount = 0;
 

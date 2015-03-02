@@ -32,8 +32,10 @@ private:
     //std::unique_ptr<class QWinTaskbarButton> _taskbarBut;
     QTimer _updateTimer;
     HomeTimeline _homeTimeline;
+    bool _hometlFirstUpdate;
 
 private slots:
+    void linkClicked(const QUrl& url);
     void homeTimelineUpdated(int newTweetsCount);
     void updateTimelines();
 };

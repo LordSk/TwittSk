@@ -14,6 +14,7 @@
 #include <QStaticText>
 #include <QFont>
 #include <QWinTaskbarButton>
+#include <QDesktopServices>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -30,6 +31,9 @@ MainWindow::MainWindow(QWidget *parent) :
     setMinimumSize(size());
     setWindowIcon(_baseIcon);
 
+    _ui->webView->page()->setLinkDelegationPolicy(QWebPage::LinkDelegationPolicy::DelegateAllLinks);
+    connect(_ui->webView, SIGNAL(linkClicked(const QUrl&)), this, SLOT(linkClicked(const QUrl&)));
+
     /*_taskbarBut = std::unique_ptr<QWinTaskbarButton>(new QWinTaskbarButton(this));
     _taskbarBut->setWindow(windowHandle());
     _taskbarBut->setOverlayIcon(winIcon);*/
@@ -40,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&_homeTimeline, SIGNAL(updateDone(int)), this, SLOT(homeTimelineUpdated(int)));
 
     // update once
+    _hometlFirstUpdate = true;
     _homeTimeline.update();
 }
 
@@ -94,6 +99,11 @@ void MainWindow::changeEvent(QEvent *event)
     }
 }
 
+void MainWindow::linkClicked(const QUrl &url)
+{
+    QDesktopServices::openUrl(url);
+}
+
 /*void MainWindow::closeEvent(QCloseEvent *ce)
 {
     ce->ignore();
@@ -102,8 +112,14 @@ void MainWindow::changeEvent(QEvent *event)
 
 void MainWindow::homeTimelineUpdated(int newTweetsCount)
 {
-    qDebug() << "Home timeline updated";
-    showUnreadIcon(newTweetsCount);
+    if(_hometlFirstUpdate) {
+        _homeTimeline.setRead();
+        showUnreadIcon(0);
+        _hometlFirstUpdate = false;
+    }
+    else {
+        showUnreadIcon(newTweetsCount);
+    }
 
     if(newTweetsCount == 0) // nothing new, don't update the view
         return;
