@@ -6,7 +6,8 @@
 class Tweet
 {
     QString _idStr;
-    QString _text;
+    QString _rawText;
+    QString _htmlText;
 
     struct {
         QString avatarSrc;

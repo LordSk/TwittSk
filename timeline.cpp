@@ -2,6 +2,8 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QFile>
+#include <QDir>
 #include "timeline.h"
 
 Timeline::Timeline(QObject *parent):
@@ -53,7 +55,7 @@ HomeTimeline::HomeTimeline(QObject *parent):
 
 void HomeTimeline::update()
 {
-    QString count = "25";
+    QString count = "100";
 
     if(_tweets.size() > 0) {
         _netAM.get(_netReqFact.homeTimeline({
@@ -70,14 +72,23 @@ void HomeTimeline::update()
 
 void HomeTimeline::replyFinished(QNetworkReply *reply)
 {
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
+    //QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
+    /*QFile file(QDir::currentPath() + "/hometl.json");
+    file.open(QIODevice::WriteOnly);
+    file.write(jsonDoc.toJson());
+    file.close();*/
+
+    QFile file(QDir::currentPath() + "/hometl.json");
+    file.open(QIODevice::ReadOnly);
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+    file.close();
 
     int newTweetsCount = 0;
 
     for(const auto& v : jsonDoc.array()) {
         Tweet tweet(v.toObject());
         _tweets.insert({tweet.id(), tweet});
-        qDebug() << tweet.id();
+        //qDebug() << tweet.id();
         newTweetsCount++;
     }
 
