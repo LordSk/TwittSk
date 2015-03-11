@@ -5,27 +5,31 @@ body {
 }
 
 .newTweets {
-	border: 1px solid red;
-	border-radius: 5px;
+	background: #D1F0C2;
 }
 
 .tweetBody {
-	padding-top: 10px;
-	padding-bottom: 10px;
-	border-bottom: 1px solid #C7C7C7;
 }
 
-.leftPanel {
+.userInfo {
+	border-top: 1px solid #A6A6A6;
+	border-bottom: 1px solid #A6A6A6;
+	height: 52px;
+	padding: 5px;
+	background: #D6D6D6;
+}
+
+.userInfo .avatar {
 	float: left;
 }
 
-.rightPanel {
+.userInfo .posterName {
+	font-weight: bold;
 	margin-left: 52px;
-	min-height: 52px;
 }
 
-.posterName {
-	font-weight: bold;
+.tweetContent {
+	padding: 10px;
 }
 
 .text {
@@ -39,5 +43,5 @@ body {
 }
 
 .mediaPreview img {
-	max-width: 400px;
+	max-width: 480px;
 }

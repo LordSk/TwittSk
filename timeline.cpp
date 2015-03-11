@@ -17,6 +17,7 @@ Timeline::Timeline(QObject *parent):
 QString Timeline::getHTML() const
 {
     QString html = "";
+    int max = 50;
 
     // open newTweets block
     if(_newTweetsCount > 0)
@@ -24,6 +25,9 @@ QString Timeline::getHTML() const
 
     int ntc = _newTweetsCount;
     for(const auto& pair : _tweets) {
+        if(max-- == 0)
+            break;
+
         // close newTweets block
         if(ntc-- == 0 && _newTweetsCount > 0)
             html += "</div>";
@@ -34,7 +38,7 @@ QString Timeline::getHTML() const
     return html;
 }
 
-void Timeline::setRead()
+void Timeline::markAsRead()
 {
     _newTweetsCount = 0;
 }
@@ -53,7 +57,7 @@ HomeTimeline::HomeTimeline(QObject *parent):
 
 }
 
-void HomeTimeline::update()
+void HomeTimeline::fetchTop()
 {
     QString count = "100";
 
@@ -65,13 +69,46 @@ void HomeTimeline::update()
     }
     else {
         _netAM.get(_netReqFact.homeTimeline({
-            {"count", count}
+            {"count", count},
         }));
     }
 }
 
+void HomeTimeline::fetchBottom(const QString &fromId)
+{
+    /*QString count = "100";
+
+    if(_tweets.size() > 0) {
+        _netAM.get(_netReqFact.homeTimeline({
+            {"count", count},
+            {"since_id", _tweets.begin()->first}
+        }));
+    }
+    else {
+        _netAM.get(_netReqFact.homeTimeline({
+            {"count", count},
+        }));
+    }*/
+}
+
 void HomeTimeline::replyFinished(QNetworkReply *reply)
 {
+    /*QFile file(QDir::currentPath() + "/raw.reply");
+    file.open(QIODevice::WriteOnly);
+    file.write(reply->readAll());
+    file.close();*/
+
+    /*QFile file(QDir::currentPath() + "/raw.reply");
+    file.open(QIODevice::ReadOnly);
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+    file.close();*/
+
+    // emoji parsing?
+    /*QByteArray replyContent = reply->readAll();
+    QString str = QString::fromUtf8(replyContent);
+    QRegExp regex("([\\\\]{1}u.{4})");
+    str.replace(regex, " ");*/
+
     QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
     /*QFile file(QDir::currentPath() + "/hometl.json");
     file.open(QIODevice::WriteOnly);
@@ -94,8 +131,7 @@ void HomeTimeline::replyFinished(QNetworkReply *reply)
 
     _newTweetsCount += newTweetsCount;
 
-    reply->disconnect();
-    reply->deleteLater();
+    emit topFetched(_newTweetsCount);
 
-    emit updateDone(_newTweetsCount);
+    Timeline::replyFinished(reply); // close reply
 }

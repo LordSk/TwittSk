@@ -9,6 +9,7 @@ Tweet::Tweet(const QJsonObject &obj)
 {
     _idStr = obj["id_str"].toString();
     _rawText = obj["text"].toString();
+    _htmlText = _rawText;
 
     QJsonObject user = obj["user"].toObject();
     _poster.displayName = user["name"].toString();
@@ -17,8 +18,11 @@ Tweet::Tweet(const QJsonObject &obj)
 
     QJsonObject entities = obj["entities"].toObject();
 
-    if(obj.contains("retweeted_status"))
-        return;
+    if(obj.contains("retweeted_status")) {
+        QJsonObject rtObj = obj["retweeted_status"].toObject();
+        entities = rtObj["entities"].toObject();
+        _rawText = rtObj["text"].toString();
+    }
 
     std::map<int, QString> strMap;
     int i = 0;
@@ -50,7 +54,7 @@ Tweet::Tweet(const QJsonObject &obj)
         _media.undefined = false;
 
         QJsonArray indices = media["indices"].toArray();
-        for(int i = indices[0].toInt(); i <= indices[1].toInt(); i++) {
+        for(int i = indices[0].toInt(); i < indices[1].toInt(); i++) {
             strMap.erase(i);
         }
     }
@@ -97,19 +101,20 @@ QString Tweet::toHTML() const
     out
     << "<div class=\"tweetBody\">"
 
-    << "<div class=\"leftPanel\">"
-    << "<div class=\"avatar\"><img src=\"" << _poster.avatarSrc << "\"></div>"
+    << "<div class=\"userInfo\">"
+        << "<div class=\"avatar\"><img src=\"" << _poster.avatarSrc << "\"></div>"
+        << "<div class=\"posterName\">" << _poster.displayName << "</div>"
     << "</div>"
 
-    << "<div class=\"rightPanel\">"
-    << "<div class=\"posterName\">" << _poster.displayName << "</div>"
-    << "<div class=\"text\">" << _htmlText << "</div>";
+    << "<div class=\"tweetContent\">"
+        << "<div class=\"text\">" << _htmlText << "</div>";
 
-    if(!_media.undefined) {
-        out << "<div class=\"mediaPreview\"><img src=\"" << _media.url << "\"></div>";
-    }
+        if(!_media.undefined) {
+            out << "<div class=\"mediaPreview\"><img src=\"" << _media.url << "\"></div>";
+        }
 
-    out << "</div>" // rightPanel
+    out << "</div>" // tweetContent
+
     << "</div>"; // tweetBody
 
     return html;

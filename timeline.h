@@ -14,9 +14,10 @@ class Timeline : public QObject
 public:
     explicit Timeline(QObject* parent = nullptr);
 
-    virtual void update() = 0;
+    virtual void fetchTop() = 0;
+    virtual void fetchBottom(const QString& fromId) = 0;
     QString getHTML() const;
-    void setRead();
+    void markAsRead();
 
 protected:
     QNetworkAccessManager _netAM;
@@ -25,9 +26,10 @@ protected:
     int _newTweetsCount;
 
 signals:
-    void updateDone(int newTweetsCount);
+    void topFetched(int newTweetsCount);
+    void bottomFetched();
 
-private slots:
+protected slots:
     virtual void replyFinished(QNetworkReply* reply);
 };
 
@@ -38,9 +40,10 @@ class HomeTimeline: public Timeline
 
 public:
     explicit HomeTimeline(QObject* parent = nullptr);
-    void update();
+    void fetchTop();
+    void fetchBottom(const QString& fromId);
 
-private slots:
+protected slots:
     virtual void replyFinished(QNetworkReply* reply);
 };
 

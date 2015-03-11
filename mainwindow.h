@@ -36,7 +36,7 @@ private:
 
 private slots:
     void linkClicked(const QUrl& url);
-    void homeTimelineUpdated(int newTweetsCount);
+    void homeTlTop(int newTweetsCount);
     void updateTimelines();
 };
 

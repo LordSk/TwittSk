@@ -41,11 +41,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&_updateTimer, SIGNAL(timeout()), this, SLOT(updateTimelines()));
     _updateTimer.start(60*1000);
 
-    connect(&_homeTimeline, SIGNAL(updateDone(int)), this, SLOT(homeTimelineUpdated(int)));
+    connect(&_homeTimeline, SIGNAL(topFetched(int)), this, SLOT(homeTlTop(int)));
 
     // update once
     _hometlFirstUpdate = true;
-    _homeTimeline.update();
+    _homeTimeline.fetchTop();
 }
 
 MainWindow::~MainWindow()
@@ -93,7 +93,7 @@ void MainWindow::changeEvent(QEvent *event)
 
     if(event->type() == QEvent::ActivationChange) {
         if(isActiveWindow()) {
-            _homeTimeline.setRead();
+            _homeTimeline.markAsRead();
             showUnreadIcon(0);
         }
     }
@@ -110,10 +110,10 @@ void MainWindow::linkClicked(const QUrl &url)
     showMinimized();
 }*/
 
-void MainWindow::homeTimelineUpdated(int newTweetsCount)
+void MainWindow::homeTlTop(int newTweetsCount)
 {
     if(_hometlFirstUpdate) {
-        _homeTimeline.setRead();
+        _homeTimeline.markAsRead();
         showUnreadIcon(0);
         _hometlFirstUpdate = false;
     }
@@ -131,6 +131,7 @@ void MainWindow::homeTimelineUpdated(int newTweetsCount)
     << "<!DOCTYPE html>"
     << "<html>"
     << "<head>"
+    << "<meta charset=\"utf-8\">"
     << "<link rel=\"stylesheet\" type=\"text/css\" href=\"" << "file:///" + QDir::currentPath() + "/twittsk.css" << "\">"
     << "</head>"
     << "<body>"
@@ -145,5 +146,5 @@ void MainWindow::homeTimelineUpdated(int newTweetsCount)
 
 void MainWindow::updateTimelines()
 {
-    _homeTimeline.update();
+    _homeTimeline.fetchTop();
 }

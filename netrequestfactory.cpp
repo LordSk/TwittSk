@@ -83,7 +83,7 @@ QString NetRequestFactory::genSignature(const QUrl &baseUrl, const QString& nonc
     signingKey += QUrl::toPercentEncoding(_tokenSecret);
     //qDebug() << signingKey;
 
-    QString signature = QMessageAuthenticationCode::hash(baseStr.toLatin1(), signingKey.toLatin1(), QCryptographicHash::Sha1).toBase64();
+    QString signature = QMessageAuthenticationCode::hash(baseStr.toUtf8(), signingKey.toUtf8(), QCryptographicHash::Sha1).toBase64();
     //qDebug() << signature;
 
     return signature;
