@@ -16,13 +16,13 @@ SOURCES += main.cpp\
 	mainwindow.cpp \
     netrequestfactory.cpp \
     tweet.cpp \
-    timeline.cpp
+    timeline.cpp \
+    timelineview.cpp
 
 HEADERS  += mainwindow.h \
     netrequestfactory.h \
     tweet.h \
-    timeline.h
-
-FORMS    += mainwindow.ui
+    timeline.h \
+    timelineview.h
 
 CONFIG += c++11

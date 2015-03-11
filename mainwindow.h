@@ -28,15 +28,13 @@ private:
 
     QIcon _baseIcon;
     QImage _unreadIconImg;
-    std::unique_ptr<Ui::MainWindow> _ui;
+    std::unique_ptr<class TimelineView> _webView;
     //std::unique_ptr<class QWinTaskbarButton> _taskbarBut;
     QTimer _updateTimer;
     HomeTimeline _homeTimeline;
     bool _hometlFirstUpdate;
 
 private slots:
-    void linkClicked(const QUrl& url);
-    void homeTlTop(int newTweetsCount);
     void updateTimelines();
 };
 

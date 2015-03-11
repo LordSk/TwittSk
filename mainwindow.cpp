@@ -14,25 +14,22 @@
 #include <QStaticText>
 #include <QFont>
 #include <QWinTaskbarButton>
-#include <QDesktopServices>
 
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include "netrequestfactory.h"
 #include "tweet.h"
+#include "timelineview.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     _baseIcon(QDir::currentPath() + "/icon_64.png"),
-    _unreadIconImg(QDir::currentPath() + "/icon_red_64.png"),
-    _ui(new Ui::MainWindow)
+    _unreadIconImg(QDir::currentPath() + "/icon_red_64.png")
 {
-    _ui->setupUi(this);
-    setMinimumSize(size());
+    setMinimumSize({500, 600});
+    setMaximumWidth(500);
     setWindowIcon(_baseIcon);
 
-    _ui->webView->page()->setLinkDelegationPolicy(QWebPage::LinkDelegationPolicy::DelegateAllLinks);
-    connect(_ui->webView, SIGNAL(linkClicked(const QUrl&)), this, SLOT(linkClicked(const QUrl&)));
+    _webView = std::unique_ptr<TimelineView>(new TimelineView(&_homeTimeline, {500, 600}, this));
 
     /*_taskbarBut = std::unique_ptr<QWinTaskbarButton>(new QWinTaskbarButton(this));
     _taskbarBut->setWindow(windowHandle());
@@ -41,10 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&_updateTimer, SIGNAL(timeout()), this, SLOT(updateTimelines()));
     _updateTimer.start(60*1000);
 
-    connect(&_homeTimeline, SIGNAL(topFetched(int)), this, SLOT(homeTlTop(int)));
-
-    // update once
-    _hometlFirstUpdate = true;
+    // fetch once
     _homeTimeline.fetchTop();
 }
 
@@ -93,15 +87,10 @@ void MainWindow::changeEvent(QEvent *event)
 
     if(event->type() == QEvent::ActivationChange) {
         if(isActiveWindow()) {
-            _homeTimeline.markAsRead();
+            //_homeTimeline.markAsRead();
             showUnreadIcon(0);
         }
     }
-}
-
-void MainWindow::linkClicked(const QUrl &url)
-{
-    QDesktopServices::openUrl(url);
 }
 
 /*void MainWindow::closeEvent(QCloseEvent *ce)
@@ -109,40 +98,6 @@ void MainWindow::linkClicked(const QUrl &url)
     ce->ignore();
     showMinimized();
 }*/
-
-void MainWindow::homeTlTop(int newTweetsCount)
-{
-    if(_hometlFirstUpdate) {
-        _homeTimeline.markAsRead();
-        showUnreadIcon(0);
-        _hometlFirstUpdate = false;
-    }
-    else {
-        showUnreadIcon(newTweetsCount);
-    }
-
-    if(newTweetsCount == 0) // nothing new, don't update the view
-        return;
-
-    QString html = "";
-    QTextStream out(&html, QIODevice::WriteOnly);
-
-    out
-    << "<!DOCTYPE html>"
-    << "<html>"
-    << "<head>"
-    << "<meta charset=\"utf-8\">"
-    << "<link rel=\"stylesheet\" type=\"text/css\" href=\"" << "file:///" + QDir::currentPath() + "/twittsk.css" << "\">"
-    << "</head>"
-    << "<body>"
-
-    << _homeTimeline.getHTML();
-
-    out << "</body></html>";
-
-
-    _ui->webView->setHtml(html);
-}
 
 void MainWindow::updateTimelines()
 {

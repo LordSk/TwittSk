@@ -7,6 +7,8 @@
 #include "netrequestfactory.h"
 #include "tweet.h"
 
+typedef std::map<QString, Tweet, std::greater<QString>> TweetMap;
+
 class Timeline : public QObject
 {
     Q_OBJECT
@@ -16,14 +18,12 @@ public:
 
     virtual void fetchTop() = 0;
     virtual void fetchBottom(const QString& fromId) = 0;
-    QString getHTML() const;
-    void markAsRead();
+    const TweetMap &getTweets() const;
 
 protected:
     QNetworkAccessManager _netAM;
     NetRequestFactory _netReqFact;
-    std::map<QString, Tweet, std::greater<QString>> _tweets;
-    int _newTweetsCount;
+    TweetMap _tweets;
 
 signals:
     void topFetched(int newTweetsCount);

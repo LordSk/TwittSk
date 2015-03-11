@@ -7,40 +7,14 @@
 #include "timeline.h"
 
 Timeline::Timeline(QObject *parent):
-    QObject(parent),
-    _newTweetsCount(0)
+    QObject(parent)
 {
-    connect(&_netAM, SIGNAL(finished(QNetworkReply*)),
-        this, SLOT(replyFinished(QNetworkReply*)));
+    connect(&_netAM, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
 }
 
-QString Timeline::getHTML() const
+const TweetMap &Timeline::getTweets() const
 {
-    QString html = "";
-    int max = 50;
-
-    // open newTweets block
-    if(_newTweetsCount > 0)
-        html += "<div class=newTweets>";
-
-    int ntc = _newTweetsCount;
-    for(const auto& pair : _tweets) {
-        if(max-- == 0)
-            break;
-
-        // close newTweets block
-        if(ntc-- == 0 && _newTweetsCount > 0)
-            html += "</div>";
-
-        html += pair.second.toHTML();
-    }
-
-    return html;
-}
-
-void Timeline::markAsRead()
-{
-    _newTweetsCount = 0;
+    return _tweets;
 }
 
 void Timeline::replyFinished(QNetworkReply *reply)
@@ -129,9 +103,7 @@ void HomeTimeline::replyFinished(QNetworkReply *reply)
         newTweetsCount++;
     }
 
-    _newTweetsCount += newTweetsCount;
-
-    emit topFetched(_newTweetsCount);
+    emit topFetched(newTweetsCount);
 
     Timeline::replyFinished(reply); // close reply
 }
