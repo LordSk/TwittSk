@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowIcon(_baseIcon);
 
     _webView = std::unique_ptr<TimelineView>(new TimelineView(&_homeTimeline, {500, 600}, this));
+    connect(_webView.get(), SIGNAL(newTweets(int)), this, SLOT(showUnreadIcon(int)));
 
     /*_taskbarBut = std::unique_ptr<QWinTaskbarButton>(new QWinTaskbarButton(this));
     _taskbarBut->setWindow(windowHandle());
@@ -87,7 +88,7 @@ void MainWindow::changeEvent(QEvent *event)
 
     if(event->type() == QEvent::ActivationChange) {
         if(isActiveWindow()) {
-            //_homeTimeline.markAsRead();
+            _webView->markAsRead();
             showUnreadIcon(0);
         }
     }

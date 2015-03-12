@@ -20,8 +20,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void showUnreadIcon(int amount);
-
 private:
     //void closeEvent(QCloseEvent* ce);
     void changeEvent(QEvent* event);
@@ -36,6 +34,7 @@ private:
 
 private slots:
     void updateTimelines();
+    void showUnreadIcon(int amount);
 };
 
 #endif // MAINWINDOW_H

@@ -6,14 +6,16 @@
 
 TimelineView::TimelineView(Timeline *timeline, QSize size, QWidget *parent):
     QWebView(parent),
-    _timeline(timeline)
+    _timeline(timeline),
+    _newTweetsCount(0),
+    _firstFetch(true)
 {
     setMinimumSize(size);
 
     page()->setLinkDelegationPolicy(QWebPage::LinkDelegationPolicy::DelegateAllLinks);
     connect(this, SIGNAL(linkClicked(const QUrl&)), this, SLOT(linkClicked(const QUrl&)));
 
-    connect(_timeline, SIGNAL(topFetched(int)), this, SLOT(homeTlTop(int)));
+    connect(_timeline, SIGNAL(topFetched(int)), this, SLOT(topFetched(int)));
 }
 
 TimelineView::~TimelineView()
@@ -21,25 +23,13 @@ TimelineView::~TimelineView()
 
 }
 
-void TimelineView::linkClicked(const QUrl &url)
+void TimelineView::markAsRead()
 {
-    QDesktopServices::openUrl(url);
+    _newTweetsCount = 0;
 }
 
-void TimelineView::homeTlTop(int newTweetsCount)
+void TimelineView::updateHTML()
 {
-    /*if(_hometlFirstUpdate) {
-        _homeTimeline.markAsRead();
-        showUnreadIcon(0);
-        _hometlFirstUpdate = false;
-    }
-    else {
-        showUnreadIcon(newTweetsCount);
-    }
-
-    if(newTweetsCount == 0) // nothing new, don't update the view
-        return;*/
-
     QString html = "";
     QTextStream out(&html, QIODevice::WriteOnly);
 
@@ -53,15 +43,15 @@ void TimelineView::homeTlTop(int newTweetsCount)
     << "<body>";
 
     // open newTweets block
-    if(newTweetsCount > 0)
+    if(_newTweetsCount > 0)
         out << "<div class=newTweets>";
 
-    int ntc = newTweetsCount;
+    int ntc = _newTweetsCount;
     const auto& tweets = _timeline->getTweets();
 
     for(const auto& pair : tweets) {
         // close newTweets block
-        if(ntc-- == 0 && newTweetsCount > 0)
+        if(ntc-- == 0 && _newTweetsCount > 0)
            out << "</div>";
 
         out << pair.second.toHTML();
@@ -71,5 +61,28 @@ void TimelineView::homeTlTop(int newTweetsCount)
 
 
     setHtml(html);
+}
+
+void TimelineView::linkClicked(const QUrl &url)
+{
+    QDesktopServices::openUrl(url);
+}
+
+void TimelineView::topFetched(int newTweetsCount)
+{
+    if(newTweetsCount == 0) // nothing new, don't update the view
+        return;
+
+    if(_firstFetch) { // first fetch
+        _firstFetch = false;
+        _newTweetsCount = 0;
+    }
+    else {
+        _newTweetsCount += newTweetsCount;
+    }
+
+    updateHTML();
+
+    emit newTweets(_newTweetsCount);
 }
 
