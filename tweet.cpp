@@ -103,7 +103,12 @@ QString Tweet::toHTML() const
 
     << "<div class=\"userInfo\">"
         << "<div class=\"avatar\"><img src=\"" << _poster.avatarSrc << "\"></div>"
-        << "<div class=\"posterName\">" << _poster.displayName << "</div>"
+        << "<div class=\"name\">"
+            << "<div class=\"displayName\"><a href=\"https://twitter.com/" << _poster.userName
+            << "\">" << _poster.displayName << "</a></div>"
+            << "<div class=\"userName\"><a href=\"https://twitter.com/" << _poster.userName
+            << "\">@" << _poster.userName << "</a></div>"
+        << "</div>"
     << "</div>"
 
     << "<div class=\"tweetContent\">"

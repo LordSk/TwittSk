@@ -74,7 +74,7 @@ void HomeTimeline::replyFinished(QNetworkReply *reply)
 
     /*QFile file(QDir::currentPath() + "/raw.reply");
     file.open(QIODevice::ReadOnly);
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+    QByteArray replyStr = file.readAll();
     file.close();*/
 
     // emoji parsing?
