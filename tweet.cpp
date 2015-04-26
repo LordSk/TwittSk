@@ -2,11 +2,16 @@
 #include <QJsonArray>
 #include <QTextStream>
 #include <QDebug>
+#include <QLocale>
 #include <map>
 #include "tweet.h"
 
 Tweet::Tweet(const QJsonObject &obj)
 {
+    QLocale usLocale(QLocale::English, QLocale::UnitedStates);
+    _date = usLocale.toDateTime(obj["created_at"].toString(), "ddd MMM dd hh:mm:ss +0000 yyyy");
+    qDebug() << usLocale.toString(_date, "dd/MM/yyyy hh:mm:ss");
+
     _idStr = obj["id_str"].toString();
     _rawText = obj["text"].toString();
     _htmlText = _rawText;
@@ -18,12 +23,20 @@ Tweet::Tweet(const QJsonObject &obj)
 
     QJsonObject entities = obj["entities"].toObject();
 
+    _retweeted = false;
     if(obj.contains("retweeted_status")) {
         QJsonObject rtObj = obj["retweeted_status"].toObject();
         entities = rtObj["entities"].toObject();
         _rawText = rtObj["text"].toString();
+        _retweeted = true;
+
+        QJsonObject rtUser = rtObj["user"].toObject();
+        _rtUser.displayName = rtUser["name"].toString();
+        _rtUser.avatarSrc = rtUser["profile_image_url"].toString();
+        _rtUser.userName = rtUser["screen_name"].toString();
     }
 
+    // parse entities using twitter's indice system (emojis break this)
     std::map<int, QString> strMap;
     int i = 0;
     for(const auto& c : _rawText) {
@@ -36,7 +49,7 @@ Tweet::Tweet(const QJsonObject &obj)
             QJsonObject htObj = v.toObject();
             QJsonArray indices = htObj["indices"].toArray();
             int start = indices[0].toInt();
-            QString link = "<a href=\"https://twitter.com/hashtag/" + htObj["text"].toString()
+            QString link = "<a href=\"" + TWITTER_URL + "/hashtag/" + htObj["text"].toString()
                     + "\">#" + htObj["text"].toString() + "</a>";
             strMap[start] = link;
             for(int i = start + 1; i < indices[1].toInt(); i++) {
@@ -78,7 +91,7 @@ Tweet::Tweet(const QJsonObject &obj)
             QJsonObject umObj = v.toObject();
             QJsonArray indices = umObj["indices"].toArray();
             int start = indices[0].toInt();
-            QString link = "<a href=\"https://twitter.com/" + umObj["screen_name"].toString()
+            QString link = "<a href=\"" + TWITTER_URL + "/" + umObj["screen_name"].toString()
                     + "\">@" + umObj["screen_name"].toString() + "</a>";
             strMap[start] = link;
             for(int i = start + 1; i < indices[1].toInt(); i++) {
@@ -104,18 +117,24 @@ QString Tweet::toHTML() const
     << "<div class=\"userInfo\">"
         << "<div class=\"avatar\"><img src=\"" << _poster.avatarSrc << "\"></div>"
         << "<div class=\"name\">"
-            << "<div class=\"displayName\"><a href=\"https://twitter.com/" << _poster.userName
+            << "<div class=\"displayName\"><a href=\"" << TWITTER_URL << "/" << _poster.userName
             << "\">" << _poster.displayName << "</a></div>"
-            << "<div class=\"userName\"><a href=\"https://twitter.com/" << _poster.userName
+            << "<div class=\"userName\"><a href=\"" << TWITTER_URL << "/" << _poster.userName
             << "\">@" << _poster.userName << "</a></div>"
-        << "</div>"
-    << "</div>"
+        << "</div>";
+    out << "</div>";
 
-    << "<div class=\"tweetContent\">"
+    if(_retweeted) {
+
+    }
+
+    out << "<div class=\"tweetContent\">"
         << "<div class=\"text\">" << _htmlText << "</div>";
 
         if(!_media.undefined) {
-            out << "<div class=\"mediaPreview\"><img src=\"" << _media.url << "\"></div>";
+            out << "<div class=\"mediaPreview\">"
+                        "<a href=\"" << _media.url << ":large\"><img src=\"" << _media.url << "\"></a>"
+                   "</div>";
         }
 
     out << "</div>" // tweetContent

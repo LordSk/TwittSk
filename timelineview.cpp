@@ -73,6 +73,7 @@ void TimelineView::topFetched(int newTweetsCount)
     if(newTweetsCount == 0) // nothing new, don't update the view
         return;
 
+#ifdef NDEBUG
     if(_firstFetch) { // first fetch
         _firstFetch = false;
         _newTweetsCount = 0;
@@ -80,6 +81,9 @@ void TimelineView::topFetched(int newTweetsCount)
     else {
         _newTweetsCount += newTweetsCount;
     }
+#else
+    _newTweetsCount = 5;
+#endif
 
     updateHTML();
 

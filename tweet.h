@@ -2,18 +2,27 @@
 #define TWEET_H
 
 #include <QString>
+#include <QDateTime>
+
+#define TWITTER_URL QString("https://twitter.com")
 
 class Tweet
 {
     QString _idStr;
+    QDateTime _date;
     QString _rawText;
     QString _htmlText;
 
-    struct {
+    struct UserInfo
+    {
         QString avatarSrc;
         QString displayName;
         QString userName;
-    } _poster;
+    };
+
+    UserInfo _poster;
+    UserInfo _rtUser;
+    bool _retweeted;
 
     struct {
         QString url;

@@ -13,7 +13,7 @@
 #include <QPixmap>
 #include <QStaticText>
 #include <QFont>
-#include <QWinTaskbarButton>
+//#include <QWinTaskbarButton>
 
 #include "mainwindow.h"
 #include "netrequestfactory.h"
@@ -102,5 +102,7 @@ void MainWindow::changeEvent(QEvent *event)
 
 void MainWindow::updateTimelines()
 {
+#ifdef NDEBUG
     _homeTimeline.fetchTop();
+#endif
 }

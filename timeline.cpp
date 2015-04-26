@@ -33,6 +33,7 @@ HomeTimeline::HomeTimeline(QObject *parent):
 
 void HomeTimeline::fetchTop()
 {
+#ifdef NDEBUG
     QString count = "100";
 
     if(_tweets.size() > 0) {
@@ -46,6 +47,23 @@ void HomeTimeline::fetchTop()
             {"count", count},
         }));
     }
+#else
+    QFile file(QDir::currentPath() + "/hometl.json");
+    file.open(QIODevice::ReadOnly);
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+    file.close();
+
+    int newTweetsCount = 0;
+
+    for(const auto& v : jsonDoc.array()) {
+        Tweet tweet(v.toObject());
+        _tweets.insert({tweet.id(), tweet});
+        //qDebug() << tweet.id();
+        newTweetsCount++;
+    }
+
+    emit topFetched(newTweetsCount);
+#endif
 }
 
 void HomeTimeline::fetchBottom(const QString &fromId)
