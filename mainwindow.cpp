@@ -25,16 +25,15 @@ MainWindow::MainWindow(QWidget *parent) :
     _baseIcon(QDir::currentPath() + "/icon_64.png"),
     _unreadIconImg(QDir::currentPath() + "/icon_red_64.png")
 {
-    setMinimumSize({500, 600});
-    setMaximumWidth(500);
+    constexpr int width = 550;
+    constexpr int height = 900;
+
+    setMinimumSize({width, height});
+    setMaximumWidth(width);
     setWindowIcon(_baseIcon);
 
-    _webView = std::unique_ptr<TimelineView>(new TimelineView(&_homeTimeline, {500, 600}, this));
+    _webView = std::unique_ptr<TimelineView>(new TimelineView(&_homeTimeline, {width, height}, this));
     connect(_webView.get(), SIGNAL(newTweets(int)), this, SLOT(showUnreadIcon(int)));
-
-    /*_taskbarBut = std::unique_ptr<QWinTaskbarButton>(new QWinTaskbarButton(this));
-    _taskbarBut->setWindow(windowHandle());
-    _taskbarBut->setOverlayIcon(winIcon);*/
 
     connect(&_updateTimer, SIGNAL(timeout()), this, SLOT(updateTimelines()));
     _updateTimer.start(60*1000);
@@ -102,7 +101,7 @@ void MainWindow::changeEvent(QEvent *event)
 
 void MainWindow::updateTimelines()
 {
-#ifdef NDEBUG
+#ifndef QT_DEBUG
     _homeTimeline.fetchTop();
 #endif
 }

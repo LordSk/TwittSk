@@ -73,7 +73,7 @@ void TimelineView::topFetched(int newTweetsCount)
     if(newTweetsCount == 0) // nothing new, don't update the view
         return;
 
-#ifdef NDEBUG
+#ifndef QT_DEBUG
     if(_firstFetch) { // first fetch
         _firstFetch = false;
         _newTweetsCount = 0;

@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QDateTime>
+#include <QLocale>
 
 #define TWITTER_URL QString("https://twitter.com")
 
@@ -10,6 +11,7 @@ class Tweet
 {
     QString _idStr;
     QDateTime _date;
+    QLocale _usLoc;
     QString _rawText;
     QString _htmlText;
 
@@ -27,6 +29,7 @@ class Tweet
     struct {
         QString url;
         QString type;
+        QString videoType;
         bool undefined;
     } _media;
 

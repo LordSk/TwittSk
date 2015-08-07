@@ -33,7 +33,7 @@ HomeTimeline::HomeTimeline(QObject *parent):
 
 void HomeTimeline::fetchTop()
 {
-#ifdef NDEBUG
+#ifndef QT_DEBUG
     QString count = "100";
 
     if(_tweets.size() > 0) {
@@ -48,7 +48,7 @@ void HomeTimeline::fetchTop()
         }));
     }
 #else
-    QFile file(QDir::currentPath() + "/hometl.json");
+    QFile file(QDir::currentPath() + "/hometl_2.json");
     file.open(QIODevice::ReadOnly);
     QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
     file.close();
@@ -102,7 +102,7 @@ void HomeTimeline::replyFinished(QNetworkReply *reply)
     str.replace(regex, " ");*/
 
     QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
-    /*QFile file(QDir::currentPath() + "/hometl.json");
+    /*QFile file(QDir::currentPath() + "/hometl_2.json");
     file.open(QIODevice::WriteOnly);
     file.write(jsonDoc.toJson());
     file.close();*/

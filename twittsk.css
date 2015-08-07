@@ -17,10 +17,15 @@ a:hover {
 	color: #a132ff;
 }
 
+.tweetHeader {
+}
+
 .userInfo {
-	height: 52px;
-	padding: 5px;
+	float: left;
 	background: #242424;
+	width: 80%;
+	height: 52px;
+	padding-top: 4px;
 }
 
 .userInfo .avatar {
@@ -29,7 +34,6 @@ a:hover {
 
 .userInfo .avatar img {
 	border-radius: 5px;
-	/*border: 1px solid #0078ff;*/
 }
 
 .userInfo .name {
@@ -48,7 +52,21 @@ a:hover {
 	color: #575757;
 }
 
+.date {
+	width: 20%;
+	height: 100%;
+	float: right;
+	background: #323232;
+	height: 52px;
+	line-height: 52px;
+	text-align: center;
+	padding-top: 4px;
+	color: #afafaf;
+	font-size: 80%;
+}
+
 .tweetContent {
+	clear: both;
 	padding: 10px;
 	background: #1a1a1a;
 	min-height: 64px;
@@ -79,6 +97,11 @@ a:hover {
 
 .newTweets .userInfo .userName a {
 	color: #4c2626;
+}
+
+.newTweets .date {
+	color: #b05858;
+	background: #331919;
 }
 
 .newTweets .tweetContent {
